@@ -38,6 +38,8 @@ function Entity:init(def)
     self.flashTimer = 0
 
     self.dead = false
+    self.dropChance = def.dropChance
+    self.dropped = false
 end
 
 function Entity:createAnimations(animations)

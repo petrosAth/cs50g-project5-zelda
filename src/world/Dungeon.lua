@@ -42,6 +42,9 @@ function Dungeon:init(player)
     Event.on('shift-down', function()
         self:beginShifting(0, VIRTUAL_HEIGHT)
     end)
+    Event.on('entityDeath', function(entity)
+        self.currentRoom:generateObjects('drop', entity)
+    end)
 end
 
 --[[

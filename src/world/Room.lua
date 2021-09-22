@@ -21,7 +21,7 @@ function Room:init(player)
 
     -- game objects in the room
     self.objects = {}
-    self:generateObjects()
+    self:generateObjects('switch')
 
     -- doorways that lead to other dungeon rooms
     self.doorways = {}
@@ -64,7 +64,9 @@ function Room:generateEntities()
             width = 16,
             height = 16,
 
-            health = 1
+            health = 1,
+
+            dropChance = ENTITY_DEFS[type].heartDropChance or 0
         })
 
         self.entities[i].stateMachine = StateMachine {
@@ -79,31 +81,62 @@ end
 --[[
     Randomly creates an assortment of obstacles for the player to navigate around.
 ]]
-function Room:generateObjects()
-    local switch = GameObject(
-        GAME_OBJECT_DEFS['switch'],
-        math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
-                    VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
-        math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
-                    VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
-    )
+function Room:generateObjects(object, entity)
+    local object = object
+    local entity = entity or nil
 
-    -- define a function for the switch that will open all doors in the room
-    switch.onCollide = function()
-        if switch.state == 'unpressed' then
-            switch.state = 'pressed'
-            
-            -- open every door in the room if we press the switch
-            for k, doorway in pairs(self.doorways) do
-                doorway.open = true
+    if object == 'switch' then
+        local switch = GameObject(
+            GAME_OBJECT_DEFS['switch'],
+            math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                        VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+            math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                        VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+        )
+
+        -- define a function for the switch that will open all doors in the room
+        switch.onCollide = function()
+            if switch.state == 'unpressed' then
+                switch.state = 'pressed'
+                
+                -- open every door in the room if we press the switch
+                for k, doorway in pairs(self.doorways) do
+                    doorway.open = true
+                end
+
+                gSounds['door']:play()
+            end
+        end
+
+        object = switch
+    elseif object == 'drop' then
+        if entity.dropChance < math.random(5) then
+            local drop = GameObject(
+                GAME_OBJECT_DEFS['heartDrop'],
+                entity.x,
+                entity.y
+            )
+
+            drop.onCollide = function()
+                drop.state = 'used'
+                if self.player.health == 5 then
+                    self.player.health = self.player.health + 1
+                elseif self.player.health <= 4 then
+                    self.player.health = self.player.health + 2
+                end
+
             end
 
-            gSounds['door']:play()
+            object = drop
+        else
+            object = nil
         end
     end
 
-    -- add to list of objects in scene (only one switch for now)
-    table.insert(self.objects, switch)
+    if object ~= nil then
+        -- add to list of objects in scene (only one switch for now)
+        table.insert(self.objects, object)
+    end
 end
 
 --[[
@@ -157,8 +190,10 @@ function Room:update(dt)
         local entity = self.entities[i]
 
         -- remove entity from the table if health is <= 0
-        if entity.health <= 0 then
+        if entity.health <= 0 and not entity.dropped then
             entity.dead = true
+            entity.dropped = true
+            Event.dispatch('entityDeath', entity)
         elseif not entity.dead then
             entity:processAI({room = self}, dt)
             entity:update(dt)
@@ -183,6 +218,10 @@ function Room:update(dt)
         if self.player:collides(object) then
             object:onCollide()
         end
+
+        if object.state == 'used' then
+            table.remove(self.objects, k)
+        end
     end
 end
 
@@ -203,6 +242,9 @@ function Room:render()
     end
 
     for k, object in pairs(self.objects) do
+        -- if object.state == 'used' then
+        --     table.remove(self.objects, k)
+        -- end
         object:render(self.adjacentOffsetX, self.adjacentOffsetY)
     end
 

@@ -103,7 +103,8 @@ ENTITY_DEFS = {
             ['idle-up'] = {
                 frames = {47}
             }
-        }
+        },
+        heartDropChance = 2
     },
     ['slime'] = {
         texture = 'entities',
@@ -136,7 +137,8 @@ ENTITY_DEFS = {
             ['idle-up'] = {
                 frames = {86}
             }
-        }
+        },
+        heartDropChance = 2
     },
     ['bat'] = {
         texture = 'entities',
@@ -173,7 +175,8 @@ ENTITY_DEFS = {
                 frames = {88, 89, 90, 89},
                 interval = 0.2
             }
-        }
+        },
+        heartDropChance = 2
     },
     ['ghost'] = {
         texture = 'entities',
@@ -206,7 +209,8 @@ ENTITY_DEFS = {
             ['idle-up'] = {
                 frames = {92}
             }
-        }
+        },
+        heartDropChance = 2
     },
     ['spider'] = {
         texture = 'entities',
@@ -239,6 +243,7 @@ ENTITY_DEFS = {
             ['idle-up'] = {
                 frames = {95}
             }
-        }
+        },
+        heartDropChance = 2
     }
 }

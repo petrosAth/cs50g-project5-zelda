@@ -26,5 +26,22 @@ GAME_OBJECT_DEFS = {
     },
     ['pot'] = {
         -- TODO
+    },
+    ['heartDrop'] = {
+        type = 'heartDrop',
+        texture = 'hearts',
+        frame = 5,
+        width = 16,
+        height = 16,
+        solid = false,
+        defaultState = 'unused',
+        states = {
+            ['unused'] = {
+                frame = 5
+            },
+            ['used'] = {
+                frame = 5
+            }
+        }
     }
 }
