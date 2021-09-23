@@ -25,7 +25,24 @@ GAME_OBJECT_DEFS = {
         }
     },
     ['pot'] = {
-        -- TODO
+        type = 'pot',
+        texture = 'tiles',
+        frame = 33,
+        width = 16,
+        height = 16,
+        solid = true,
+        defaultState = 'sealed',
+        states = {
+            ['sealed'] = {
+                frame = 33
+            },
+            ['opened'] = {
+                frame = 14
+            },
+            ['broken'] = {
+                frame = 52
+            }
+        }
     },
     ['heartDrop'] = {
         type = 'heartDrop',

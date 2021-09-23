@@ -22,6 +22,7 @@ function Room:init(player)
     -- game objects in the room
     self.objects = {}
     self:generateObjects('switch')
+    self:generateObjects('pot')
 
     -- doorways that lead to other dungeon rooms
     self.doorways = {}
@@ -82,9 +83,6 @@ end
     Randomly creates an assortment of obstacles for the player to navigate around.
 ]]
 function Room:generateObjects(object, entity)
-    local object = object
-    local entity = entity or nil
-
     if object == 'switch' then
         local switch = GameObject(
             GAME_OBJECT_DEFS['switch'],
@@ -108,7 +106,9 @@ function Room:generateObjects(object, entity)
             end
         end
 
-        object = switch
+        -- add to list of objects in scene
+        table.insert(self.objects, switch)
+
     elseif object == 'drop' then
         if entity.dropChance < math.random(5) then
             local drop = GameObject(
@@ -127,15 +127,38 @@ function Room:generateObjects(object, entity)
 
             end
 
-            object = drop
-        else
-            object = nil
+            if drop ~= nil then
+                -- add to list of objects in scene
+                table.insert(self.objects, drop)
+            end
         end
-    end
+    elseif object == 'pot' then
+        for y = 1, math.random(3) do
+            local pot = GameObject(
+                GAME_OBJECT_DEFS['pot'],
+                math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                            VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+                math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                            VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+            )
 
-    if object ~= nil then
-        -- add to list of objects in scene (only one switch for now)
-        table.insert(self.objects, object)
+            -- -- define a function for the switch that will open all doors in the room
+            -- switch.onCollide = function()
+            --     if switch.state == 'unpressed' then
+            --         switch.state = 'pressed'
+                    
+            --         -- open every door in the room if we press the switch
+            --         for k, doorway in pairs(self.doorways) do
+            --             doorway.open = true
+            --         end
+
+            --         gSounds['door']:play()
+            --     end
+            -- end
+
+            -- add to list of objects in scene
+            table.insert(self.objects, pot)
+        end
     end
 end
 
@@ -190,9 +213,9 @@ function Room:update(dt)
         local entity = self.entities[i]
 
         -- remove entity from the table if health is <= 0
-        if entity.health <= 0 and not entity.dropped then
+        if entity.health <= 0 and not entity.looted then
             entity.dead = true
-            entity.dropped = true
+            entity.looted = true
             Event.dispatch('entityDeath', entity)
         elseif not entity.dead then
             entity:processAI({room = self}, dt)

@@ -39,7 +39,7 @@ function Entity:init(def)
 
     self.dead = false
     self.dropChance = def.dropChance
-    self.dropped = false
+    self.looted = false
 end
 
 function Entity:createAnimations(animations)
