@@ -41,6 +41,9 @@ GAME_OBJECT_DEFS = {
             },
             ['broken'] = {
                 frame = 52
+            },
+            ['used'] = {
+                frame = 52
             }
         }
     },

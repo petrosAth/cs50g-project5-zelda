@@ -133,7 +133,7 @@ function Room:generateObjects(object, entity)
             end
         end
     elseif object == 'pot' then
-        for y = 1, math.random(3) do
+        for y = 1, math.random(5) do
             local pot = GameObject(
                 GAME_OBJECT_DEFS['pot'],
                 math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -142,19 +142,12 @@ function Room:generateObjects(object, entity)
                             VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
             )
 
-            -- -- define a function for the switch that will open all doors in the room
-            -- switch.onCollide = function()
-            --     if switch.state == 'unpressed' then
-            --         switch.state = 'pressed'
-                    
-            --         -- open every door in the room if we press the switch
-            --         for k, doorway in pairs(self.doorways) do
-            --             doorway.open = true
-            --         end
-
-            --         gSounds['door']:play()
-            --     end
-            -- end
+            -- define a function for the switch that will open all doors in the room
+            pot.onCollide = function()
+                -- if direction == 'up' then
+            -- self.player.bumped = true
+                -- end
+            end
 
             -- add to list of objects in scene
             table.insert(self.objects, pot)
@@ -240,6 +233,37 @@ function Room:update(dt)
         -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
+
+            if object.solid then
+                if self.player.direction == 'left' then
+                    self.player.x = self.player.x + self.player.walkSpeed * dt
+                elseif self.player.direction == 'right' then
+                    self.player.x = self.player.x - self.player.walkSpeed * dt
+                elseif self.player.direction == 'up' then
+                    self.player.y = self.player.y + self.player.walkSpeed * dt
+                elseif self.player.direction == 'down' then
+                    self.player.y = self.player.y - self.player.walkSpeed * dt
+                end
+            end
+        end
+
+        for l, entity in pairs(self.entities) do
+            if entity:collides(object) and object.solid then
+                if entity.direction == 'left' then
+                    entity.x = object.x + object.width + entity.walkSpeed * dt
+
+                elseif entity.direction == 'right' then
+                    entity.x = object.x - entity.walkSpeed * dt
+
+                elseif entity.direction == 'up' then
+                    entity.y = object.y + object.height + entity.walkSpeed * dt
+
+                elseif entity.direction == 'down' then
+                    entity.y = object.y - entity.walkSpeed * dt
+
+                end
+
+            end
         end
 
         if object.state == 'used' then
@@ -265,9 +289,6 @@ function Room:render()
     end
 
     for k, object in pairs(self.objects) do
-        -- if object.state == 'used' then
-        --     table.remove(self.objects, k)
-        -- end
         object:render(self.adjacentOffsetX, self.adjacentOffsetY)
     end
 

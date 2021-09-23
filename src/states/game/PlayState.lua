@@ -69,4 +69,11 @@ function PlayState:render()
         
         healthLeft = healthLeft - 2
     end
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(gFonts['small'])
+    love.graphics.print('x: ' .. tostring(self.player.x), 55, 2)
+    love.graphics.print('y: ' .. tostring(self.player.y), 55, 9)
+    love.graphics.print('offset_x: ' .. tostring(MAP_RENDER_OFFSET_X), 205, 2)
+    love.graphics.print('offset_y: ' .. tostring(MAP_RENDER_OFFSET_Y), 205, 9)
 end
