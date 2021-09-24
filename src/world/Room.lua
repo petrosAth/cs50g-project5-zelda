@@ -143,15 +143,7 @@ function Room:generateObjects(object, entity)
             )
 
             -- define a function for the switch that will open all doors in the room
-            pot.onCollide = function(object, direction)
-
-                local tempDirection = direction
-
-                if tempDirection == self.player.direction then
-                    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-                        object.x = object.x + 5
-                    end
-                end
+            pot.onCollide = function()
             end
 
             -- add to list of objects in scene
@@ -235,20 +227,21 @@ function Room:update(dt)
     for k, object in pairs(self.objects) do
         object:update(dt)
 
-        if self.player.x > object.x + object.width + 1
-        or self.player.x + self.player.width < object.x - 1
-        or self.player.y + self.player.height / 2 > object.y + object.height + 1
-        or self.player.y + self.player.height < object.y - 1 then
-            object.inRange = false
-        end
+        -- if self.player.x > object.x + object.width + 1
+        -- or self.player.x + self.player.width < object.x - 1
+        -- or self.player.y + self.player.height / 2 > object.y + object.height + 1
+        -- or self.player.y + self.player.height < object.y - 1 then
+        --     object.inRange = false
+        -- end
 
         -- trigger collision callback on object
         if self.player:collides(object) then
-            object:onCollide(self.player.direction)
+            object:onCollide()
 
             if object.solid then
-                self.player:onCollide(object)
-                object.inRange = true
+                -- self.player:onCollide(object)
+                -- object.inRange = true
+                self.player.facingObject = true
 
                 if self.player.direction == 'left' then
                     self.player.x = self.player.x + self.player.walkSpeed * dt
@@ -367,7 +360,7 @@ function Room:render()
         
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.setFont(gFonts['small'])
-        love.graphics.print('object.inRange: ' .. tostring(object.inRange), object.x, object.y - 30)
+        -- love.graphics.print('object.inRange: ' .. tostring(object.inRange), object.x, object.y - 30)
         love.graphics.print('object.x: ' .. tostring(object.x), object.x, object.y - 20)
         love.graphics.print('object.y: ' .. tostring(object.y), object.x, object.y - 10)
         love.graphics.rectangle('line', object.x, object.y, object.width, object.height)

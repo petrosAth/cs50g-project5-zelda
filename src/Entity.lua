@@ -47,9 +47,7 @@ function Entity:init(def)
 
     -- flag for lifting pots
     self.facingObject = false
-
-    -- default empty collision callback
-    self.onCollide = function() end
+    self.carryingObject = false
 end
 
 function Entity:createAnimations(animations)

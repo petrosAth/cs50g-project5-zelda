@@ -11,9 +11,9 @@ Player = Class{__includes = Entity}
 function Player:init(def)
     Entity.init(self, def)
 
-    self.onCollide = function(object)
-        self.facingObject = true
-    end
+    -- self.onCollide = function(object)
+    --     self.facingObject = true
+    -- end
 end
 
 function Player:update(dt)
