@@ -38,8 +38,18 @@ function Entity:init(def)
     self.flashTimer = 0
 
     self.dead = false
+
+    -- chance to drop hearts after death
     self.dropChance = def.dropChance
+
+    -- flag for dropping hearts only once
     self.looted = false
+
+    -- flag for lifting pots
+    self.facingObject = false
+
+    -- default empty collision callback
+    self.onCollide = function() end
 end
 
 function Entity:createAnimations(animations)

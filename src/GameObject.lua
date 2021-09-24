@@ -31,6 +31,9 @@ function GameObject:init(def, x, y)
 
     -- default empty collision callback
     self.onCollide = function() end
+
+    -- flag for letting player pick up pot
+    self.inRange = false
 end
 
 function GameObject:update(dt)

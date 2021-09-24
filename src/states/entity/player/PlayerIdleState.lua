@@ -19,6 +19,7 @@ function PlayerIdleState:update(dt)
     if love.keyboard.isDown('left') or love.keyboard.isDown('right') or
        love.keyboard.isDown('up') or love.keyboard.isDown('down') then
         self.entity:changeState('walk')
+        self.entity.facingObject = false
     end
 
     if love.keyboard.wasPressed('space') then

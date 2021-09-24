@@ -143,10 +143,15 @@ function Room:generateObjects(object, entity)
             )
 
             -- define a function for the switch that will open all doors in the room
-            pot.onCollide = function()
-                -- if direction == 'up' then
-            -- self.player.bumped = true
-                -- end
+            pot.onCollide = function(object, direction)
+
+                local tempDirection = direction
+
+                if tempDirection == self.player.direction then
+                    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+                        object.x = object.x + 5
+                    end
+                end
             end
 
             -- add to list of objects in scene
@@ -196,7 +201,7 @@ function Room:generateWallsAndFloors()
 end
 
 function Room:update(dt)
-    
+
     -- don't update anything if we are sliding to another room (we have offsets)
     if self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0 then return end
 
@@ -230,11 +235,21 @@ function Room:update(dt)
     for k, object in pairs(self.objects) do
         object:update(dt)
 
+        if self.player.x > object.x + object.width + 1
+        or self.player.x + self.player.width < object.x - 1
+        or self.player.y + self.player.height / 2 > object.y + object.height + 1
+        or self.player.y + self.player.height < object.y - 1 then
+            object.inRange = false
+        end
+
         -- trigger collision callback on object
         if self.player:collides(object) then
-            object:onCollide()
+            object:onCollide(self.player.direction)
 
             if object.solid then
+                self.player:onCollide(object)
+                object.inRange = true
+
                 if self.player.direction == 'left' then
                     self.player.x = self.player.x + self.player.walkSpeed * dt
                 elseif self.player.direction == 'right' then
@@ -253,13 +268,13 @@ function Room:update(dt)
                     entity.x = object.x + object.width + entity.walkSpeed * dt
 
                 elseif entity.direction == 'right' then
-                    entity.x = object.x - entity.walkSpeed * dt
+                    entity.x = object.x - entity.width - entity.walkSpeed * dt
 
                 elseif entity.direction == 'up' then
                     entity.y = object.y + object.height + entity.walkSpeed * dt
 
                 elseif entity.direction == 'down' then
-                    entity.y = object.y - entity.walkSpeed * dt
+                    entity.y = object.y - entity.height - entity.walkSpeed * dt
 
                 end
 
@@ -347,4 +362,15 @@ function Room:render()
     --     VIRTUAL_HEIGHT - TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
     
     -- love.graphics.setColor(255, 255, 255, 255)
+
+    for k, object in pairs(self.objects) do
+        
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setFont(gFonts['small'])
+        love.graphics.print('object.inRange: ' .. tostring(object.inRange), object.x, object.y - 30)
+        love.graphics.print('object.x: ' .. tostring(object.x), object.x, object.y - 20)
+        love.graphics.print('object.y: ' .. tostring(object.y), object.x, object.y - 10)
+        love.graphics.rectangle('line', object.x, object.y, object.width, object.height)
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end

@@ -31,12 +31,12 @@ GAME_OBJECT_DEFS = {
         width = 16,
         height = 16,
         solid = true,
-        defaultState = 'sealed',
+        defaultState = 'onGround',
         states = {
-            ['sealed'] = {
+            ['onGround'] = {
                 frame = 33
             },
-            ['opened'] = {
+            ['lifted'] = {
                 frame = 14
             },
             ['broken'] = {
