@@ -240,7 +240,7 @@ function Room:update(dt)
 
             if object.solid then
                 -- self.player:onCollide(object)
-                -- object.inRange = true
+                object.inPosition = true
                 self.player.facingObject = true
 
                 if self.player.direction == 'left' then
@@ -297,7 +297,11 @@ function Room:render()
     end
 
     for k, object in pairs(self.objects) do
-        object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        if self.player.direction == 'down' then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        elseif object.state ~= 'lifted' then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        end
     end
 
     for k, entity in pairs(self.entities) do
@@ -330,6 +334,12 @@ function Room:render()
         self.player:render()
     end
 
+    for k, object in pairs(self.objects) do
+        if object.state == 'lifted' and self.player.direction ~= 'down' then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        end
+    end
+
     love.graphics.setStencilTest()
 
     --
@@ -360,10 +370,10 @@ function Room:render()
         
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.setFont(gFonts['small'])
-        -- love.graphics.print('object.inRange: ' .. tostring(object.inRange), object.x, object.y - 30)
+        love.graphics.print('object.inPosition: ' .. tostring(object.inPosition), object.x, object.y - 30)
         love.graphics.print('object.x: ' .. tostring(object.x), object.x, object.y - 20)
         love.graphics.print('object.y: ' .. tostring(object.y), object.x, object.y - 10)
-        love.graphics.rectangle('line', object.x, object.y, object.width, object.height)
+        -- love.graphics.rectangle('line', object.x, object.y, object.width, object.height)
         love.graphics.setColor(1, 1, 1, 1)
     end
 end

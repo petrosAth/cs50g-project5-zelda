@@ -21,15 +21,27 @@ function PlayerWalkState:update(dt)
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
         self.entity:changeAnimation('walk-left')
+        for k, object in pairs(self.dungeon.currentRoom.objects) do
+            object.inPosition = false
+        end
     elseif love.keyboard.isDown('right') then
         self.entity.direction = 'right'
         self.entity:changeAnimation('walk-right')
+        for k, object in pairs(self.dungeon.currentRoom.objects) do
+            object.inPosition = false
+        end
     elseif love.keyboard.isDown('up') then
         self.entity.direction = 'up'
         self.entity:changeAnimation('walk-up')
+        for k, object in pairs(self.dungeon.currentRoom.objects) do
+            object.inPosition = false
+        end
     elseif love.keyboard.isDown('down') then
         self.entity.direction = 'down'
         self.entity:changeAnimation('walk-down')
+        for k, object in pairs(self.dungeon.currentRoom.objects) do
+            object.inPosition = false
+        end
     else
         self.entity:changeState('idle')
     end

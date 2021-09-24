@@ -31,6 +31,10 @@ function GameObject:init(def, x, y)
 
     -- default empty collision callback
     self.onCollide = function() end
+
+    -- flag for lifting objects
+    self.inPosition = false
+    self.isCarried = false
 end
 
 function GameObject:update(dt)

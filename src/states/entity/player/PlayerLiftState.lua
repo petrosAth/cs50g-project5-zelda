@@ -17,53 +17,38 @@ function PlayerLiftState:init(player, dungeon)
     self.player.offsetX = 0
 
     self.player:changeAnimation('pot-lift-' .. self.player.direction)
+    for k, object in pairs(self.dungeon.currentRoom.objects) do
+        if object.inPosition then
+            object.solid = false
+            object.state = 'lifted'
+            object.x = self.player.x
+            object.y = self.player.y - object.height + 6
+        end
+    end
+    self.player.carryingObject = true
 end
 
 function PlayerLiftState:enter(params)
 
     -- restart sword swing sound for rapid swinging
-    gSounds['door']:stop()
-    gSounds['door']:play()
+    gSounds['hit-player']:stop()
+    gSounds['hit-player']:play()
 
     -- restart sword swing animation
     self.player.currentAnimation:refresh()
 end
 
 function PlayerLiftState:update(dt)
-    -- if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-    --     if self.carryingObject == true then
-    --         self.player:changeState('idle')
 
-    --     elseif self.carryingObject == false then
-    --         self.player:changeState('idle')
-
-    --     end
-    -- end
-    -- if we've fully elapsed through one cycle of animation, change back to idle state
     if self.player.currentAnimation.timesPlayed > 0 then
         self.player.currentAnimation.timesPlayed = 0
-        self.player:changeState('idle')
+        self.player:changeState('carry')
     end
-
-    -- allow us to change into this state afresh if we swing within it, rapid swinging
-    -- if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-    --     self.player:changeState('lift')
-    -- end
-
 end
 
 function PlayerLiftState:render()
+
     local anim = self.player.currentAnimation
     love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
         math.floor(self.player.x - self.player.offsetX), math.floor(self.player.y - self.player.offsetY))
-
-    --
-    -- debug for player and hurtbox collision rects VV
-    --
-
-    -- love.graphics.setColor(255, 0, 255, 255)
-    -- love.graphics.rectangle('line', self.player.x, self.player.y, self.player.width, self.player.height)
-    -- love.graphics.rectangle('line', self.swordHurtbox.x, self.swordHurtbox.y,
-    --     self.swordHurtbox.width, self.swordHurtbox.height)
-    -- love.graphics.setColor(255, 255, 255, 255)
 end
