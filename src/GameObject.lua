@@ -55,25 +55,25 @@ function GameObject:update(dt)
         self.solid = true
 
         if self.direction == 'up' then
-            if self.y > self.travelY - 64 then
+            if self.y > self.travelY - 80 then
                 self.y = self.y - 2 * PLAYER_WALK_SPEED * dt
             else
                 self.state = 'broken'
             end
         elseif self.direction == 'down' then
-            if self.y < self.travelY + 64 then
+            if self.y < self.travelY + 80 then
                 self.y = self.y + 2 * PLAYER_WALK_SPEED * dt
             else
                 self.state = 'broken'
             end
         elseif self.direction == 'left' then
-            if self.x > self.travelX - 64 then
+            if self.x > self.travelX - 80 then
                 self.x = self.x - 2 * PLAYER_WALK_SPEED * dt
             else
                 self.state = 'broken'
             end
         elseif self.direction == 'right' then
-            if self.x < self.travelX + 64 then
+            if self.x < self.travelX + 80 then
                 self.x = self.x + 2 * PLAYER_WALK_SPEED * dt
             else
                 self.state = 'broken'
