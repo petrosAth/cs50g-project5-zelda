@@ -49,7 +49,7 @@ end
 function Room:generateEntities()
     local types = {'skeleton', 'slime', 'bat', 'ghost', 'spider'}
 
-    for i = 1, 10 do
+    for i = 1, 1 do
         local type = types[math.random(#types)]
 
         table.insert(self.entities, Entity {
@@ -133,7 +133,7 @@ function Room:generateObjects(object, entity)
             end
         end
     elseif object == 'pot' then
-        for y = 1, math.random(5) do
+        for y = 1, math.random(20) do
             local pot = GameObject(
                 GAME_OBJECT_DEFS['pot'],
                 math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -142,8 +142,9 @@ function Room:generateObjects(object, entity)
                             VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
             )
 
-            -- define a function for the switch that will open all doors in the room
-            pot.onCollide = function()
+            pot.onCollide = function() end
+            pot.onHit = function()
+                pot.state = 'broken'
             end
 
             -- add to list of objects in scene
@@ -227,50 +228,52 @@ function Room:update(dt)
     for k, object in pairs(self.objects) do
         object:update(dt)
 
-        -- if self.player.x > object.x + object.width + 1
-        -- or self.player.x + self.player.width < object.x - 1
-        -- or self.player.y + self.player.height / 2 > object.y + object.height + 1
-        -- or self.player.y + self.player.height < object.y - 1 then
-        --     object.inRange = false
-        -- end
-
         -- trigger collision callback on object
         if self.player:collides(object) then
-            object:onCollide()
+            if object.state ~= 'onAir' then
+                object:onCollide()
 
-            if object.solid then
-                -- self.player:onCollide(object)
-                object.inPosition = true
-                self.player.facingObject = true
+                if object.solid then
+                    -- self.player:onCollide(object)
+                    object.inPosition = true
+                    self.player.facingObject = true
 
-                if self.player.direction == 'left' then
-                    self.player.x = self.player.x + self.player.walkSpeed * dt
-                elseif self.player.direction == 'right' then
-                    self.player.x = self.player.x - self.player.walkSpeed * dt
-                elseif self.player.direction == 'up' then
-                    self.player.y = self.player.y + self.player.walkSpeed * dt
-                elseif self.player.direction == 'down' then
-                    self.player.y = self.player.y - self.player.walkSpeed * dt
+                    if self.player.direction == 'left' then
+                        self.player.x = self.player.x + self.player.walkSpeed * dt
+                    elseif self.player.direction == 'right' then
+                        self.player.x = self.player.x - self.player.walkSpeed * dt
+                    elseif self.player.direction == 'up' then
+                        self.player.y = self.player.y + self.player.walkSpeed * dt
+                    elseif self.player.direction == 'down' then
+                        self.player.y = self.player.y - self.player.walkSpeed * dt
+                    end
                 end
             end
         end
 
+        if object.state == 'onAir' then
+            object.solid = true
+        end
+
         for l, entity in pairs(self.entities) do
-            if entity:collides(object) and object.solid then
-                if entity.direction == 'left' then
-                    entity.x = object.x + object.width + entity.walkSpeed * dt
+            if entity:collides(object) and not entity.dead then
+                if object.solid and object.state == 'onGround' then
+                    if entity.direction == 'left' then
+                        entity.x = object.x + object.width + entity.walkSpeed * dt
 
-                elseif entity.direction == 'right' then
-                    entity.x = object.x - entity.width - entity.walkSpeed * dt
+                    elseif entity.direction == 'right' then
+                        entity.x = object.x - entity.width - entity.walkSpeed * dt
 
-                elseif entity.direction == 'up' then
-                    entity.y = object.y + object.height + entity.walkSpeed * dt
+                    elseif entity.direction == 'up' then
+                        entity.y = object.y + object.height + entity.walkSpeed * dt
 
-                elseif entity.direction == 'down' then
-                    entity.y = object.y - entity.height - entity.walkSpeed * dt
-
+                    elseif entity.direction == 'down' then
+                        entity.y = object.y - entity.height - entity.walkSpeed * dt
+                    end
+                elseif object.solid and object.state == 'onAir' then
+                    object:onHit()
+                    entity.health = entity.health - 1
                 end
-
             end
         end
 
@@ -302,6 +305,7 @@ function Room:render()
         elseif object.state ~= 'lifted' then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)
         end
+
     end
 
     for k, entity in pairs(self.entities) do
@@ -369,11 +373,11 @@ function Room:render()
     for k, object in pairs(self.objects) do
         
         love.graphics.setColor(0, 0, 0, 1)
-        love.graphics.setFont(gFonts['small'])
-        love.graphics.print('object.inPosition: ' .. tostring(object.inPosition), object.x, object.y - 30)
-        love.graphics.print('object.x: ' .. tostring(object.x), object.x, object.y - 20)
-        love.graphics.print('object.y: ' .. tostring(object.y), object.x, object.y - 10)
-        -- love.graphics.rectangle('line', object.x, object.y, object.width, object.height)
+        -- love.graphics.setFont(gFonts['small'])
+        -- love.graphics.print('object.inPosition: ' .. tostring(object.inPosition), object.x, object.y - 30)
+        love.graphics.print('object.x: ' .. tostring(math.floor(object.x)), object.x, object.y - 20)
+        love.graphics.print('object.y: ' .. tostring(math.floor(object.y)), object.x, object.y - 10)
+        love.graphics.rectangle('line', object.x, object.y, object.width, object.height)
         love.graphics.setColor(1, 1, 1, 1)
     end
 end

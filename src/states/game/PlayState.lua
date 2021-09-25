@@ -31,7 +31,7 @@ function PlayState:init()
     
     self.player.stateMachine = StateMachine {
         ['walk'] = function() return PlayerWalkState(self.player, self.dungeon) end,
-        ['idle'] = function() return PlayerIdleState(self.player) end,
+        ['idle'] = function() return PlayerIdleState(self.player, self.dungeon) end,
         ['swing-sword'] = function() return PlayerSwingSwordState(self.player, self.dungeon) end,
         ['lift'] = function() return PlayerLiftState(self.player, self.dungeon) end,
         ['carry'] = function() return PlayerCarryState(self.player, self.dungeon) end
@@ -74,9 +74,10 @@ function PlayState:render()
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(gFonts['small'])
-    love.graphics.print('x: ' .. tostring(self.player.x), 55, 2)
-    love.graphics.print('y: ' .. tostring(self.player.y), 55, 9)
+    love.graphics.print('x: ' .. tostring(math.floor(self.player.x)), 55, 2)
+    love.graphics.print('y: ' .. tostring(math.floor(self.player.y)), 55, 11)
     -- love.graphics.print('offset_x: ' .. tostring(MAP_RENDER_OFFSET_X), 205, 2)
     -- love.graphics.print('offset_y: ' .. tostring(MAP_RENDER_OFFSET_Y), 205, 9)
     love.graphics.print('facingObject: ' .. tostring(self.player.facingObject), 205, 2)
+    love.graphics.print('carryingObject: ' .. tostring(self.player.carryingObject), 205, 11)
 end

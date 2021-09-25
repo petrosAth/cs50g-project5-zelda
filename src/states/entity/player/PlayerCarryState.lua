@@ -36,6 +36,36 @@ function PlayerCarryState:update(dt)
         self.entity:changeState('idle')
     end
 
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+
+        for k, object in pairs(self.dungeon.currentRoom.objects) do
+            if object.state == 'lifted' then
+                object.state = 'onAir'
+                if self.entity.direction == 'left' then
+                    object.direction = 'left'
+                    object.x = self.entity.x
+                    object.travelX = object.x
+                elseif self.entity.direction == 'right' then
+                    object.direction = 'right'
+                    object.x = self.entity.x
+                    object.travelX = object.x
+                elseif self.entity.direction == 'up' then
+                    object.direction = 'up'
+                    object.y = self.entity.y
+                    object.travelY = object.y
+                elseif self.entity.direction == 'down' then
+                    object.direction = 'down'
+                    object.y = self.entity.y
+                    object.travelY = object.y
+                end
+            end
+        end
+
+        self.entity.carryingObject = false
+
+        self.entity:changeState('idle')
+    end
+
     for k, object in pairs(self.dungeon.currentRoom.objects) do
         if object.state == 'lifted' then
             object.x = self.entity.x

@@ -8,13 +8,15 @@
 
 PlayerIdleState = Class{__includes = EntityIdleState}
 
+function PlayerIdleState:init(player, dungeon)
+    self.entity = player
+    self.dungeon = dungeon
+end
+
 function PlayerIdleState:enter(params)
-
     if self.entity.carryingObject then
-
         self.entity:changeAnimation('pot-idle-' .. self.entity.direction)
     else
-
         self.entity:changeAnimation('idle-' .. self.entity.direction)
     end
 
@@ -35,12 +37,42 @@ function PlayerIdleState:update(dt)
     end
 
     if love.keyboard.wasPressed('space') then
-        self.entity:changeState('swing-sword')
+        if not self.entity.carryingObject then
+            self.entity:changeState('swing-sword')
+        end
     end
 
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-       if self.entity.facingObject and not self.entity.carryingObject then
-           self.entity:changeState('lift')
-       end
+        if self.entity.facingObject and not self.entity.carryingObject then
+            self.entity:changeState('lift')
+
+        elseif self.entity.carryingObject then
+            for k, object in pairs(self.dungeon.currentRoom.objects) do
+                if object.state == 'lifted' then
+                    object.state = 'onAir'
+                    if self.entity.direction == 'left' then
+                        object.direction = 'left'
+                        object.x = self.entity.x
+                        object.travelX = object.x
+                    elseif self.entity.direction == 'right' then
+                        object.direction = 'right'
+                        object.x = self.entity.x
+                        object.travelX = object.x
+                    elseif self.entity.direction == 'up' then
+                        object.direction = 'up'
+                        object.y = self.entity.y
+                        object.travelY = object.y
+                    elseif self.entity.direction == 'down' then
+                        object.direction = 'down'
+                        object.y = self.entity.y
+                        object.travelY = object.y
+                    end
+                end
+            end
+
+            self.entity.carryingObject = false
+            self.entity:changeAnimation('idle-' .. self.entity.direction)
+        end
+
     end
 end
