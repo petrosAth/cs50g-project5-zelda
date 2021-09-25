@@ -45,7 +45,7 @@ function Entity:init(def)
     -- flag for dropping hearts only once
     self.looted = false
 
-    -- flag for lifting pots
+    -- flags for lifting and carrying objects
     self.facingObject = false
     self.carryingObject = false
 end

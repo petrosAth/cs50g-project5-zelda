@@ -50,7 +50,10 @@ end
 
 function GameObject:update(dt)
 
+    -- when thrown the object travels on the direction the player is turned
     if self.state == 'onAir' then
+        self.solid = true
+
         if self.direction == 'up' then
             if self.y > self.travelY - 64 then
                 self.y = self.y - 2 * PLAYER_WALK_SPEED * dt
@@ -79,7 +82,7 @@ function GameObject:update(dt)
 
     end
 
-    -- boundary checking on all sides, allowing us to avoid collision detection on tiles
+    -- make the object collide with the walls
     if self.direction == 'left' then
         if self.x <= MAP_RENDER_OFFSET_X + TILE_SIZE then 
             self.x = MAP_RENDER_OFFSET_X + TILE_SIZE
@@ -105,6 +108,7 @@ function GameObject:update(dt)
         end
     end
 
+    -- on collision the object get broken and disapears while flashing
     if self.state == 'broken' then
         self.x = self.x
         self.y = self.y
@@ -130,8 +134,4 @@ function GameObject:render(adjacentOffsetX, adjacentOffsetY)
     love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.states[self.state].frame or self.frame],
         self.x + adjacentOffsetX, self.y + adjacentOffsetY)
         love.graphics.setColor(1, 1, 1, 255/255)
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.setFont(gFonts['small'])
-    -- love.graphics.print('direction: ' .. tostring(self.direction), self.x, self.y - 40)
-    -- love.graphics.print('state: ' .. tostring(self.state), self.x, self.y - 50)
 end

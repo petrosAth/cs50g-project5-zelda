@@ -52,21 +52,17 @@ function PlayerIdleState:update(dt)
                     object.state = 'onAir'
                     if self.entity.direction == 'left' then
                         object.direction = 'left'
-                        object.x = self.entity.x
-                        object.travelX = object.x
                     elseif self.entity.direction == 'right' then
                         object.direction = 'right'
-                        object.x = self.entity.x
-                        object.travelX = object.x
                     elseif self.entity.direction == 'up' then
                         object.direction = 'up'
-                        object.y = self.entity.y
-                        object.travelY = object.y
                     elseif self.entity.direction == 'down' then
                         object.direction = 'down'
-                        object.y = self.entity.y
-                        object.travelY = object.y
                     end
+
+                    -- when thrown, the object gets player's position
+                    object.x, object.y = self.entity.x, self.entity.y
+                    object.travelX, object.travelY = object.x, object.y
                 end
             end
 

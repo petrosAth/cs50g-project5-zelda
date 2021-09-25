@@ -49,7 +49,7 @@ end
 function Room:generateEntities()
     local types = {'skeleton', 'slime', 'bat', 'ghost', 'spider'}
 
-    for i = 1, 1 do
+    for i = 1, 10 do
         local type = types[math.random(#types)]
 
         table.insert(self.entities, Entity {
@@ -133,7 +133,7 @@ function Room:generateObjects(object, entity)
             end
         end
     elseif object == 'pot' then
-        for y = 1, math.random(20) do
+        for y = 1, math.random(5) do
             local pot = GameObject(
                 GAME_OBJECT_DEFS['pot'],
                 math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -142,7 +142,7 @@ function Room:generateObjects(object, entity)
                             VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
             )
 
-            pot.onCollide = function() end
+            -- change state when it hits an obstacle
             pot.onHit = function()
                 pot.state = 'broken'
             end
@@ -234,10 +234,11 @@ function Room:update(dt)
                 object:onCollide()
 
                 if object.solid then
-                    -- self.player:onCollide(object)
+                    -- make sure object is in players range and player faces the object
                     object.inPosition = true
                     self.player.facingObject = true
 
+                    -- make object collidable for player
                     if self.player.direction == 'left' then
                         self.player.x = self.player.x + self.player.walkSpeed * dt
                     elseif self.player.direction == 'right' then
@@ -251,11 +252,9 @@ function Room:update(dt)
             end
         end
 
-        if object.state == 'onAir' then
-            object.solid = true
-        end
-
         for l, entity in pairs(self.entities) do
+
+            -- make object collidable for entities
             if entity:collides(object) and not entity.dead then
                 if object.solid and object.state == 'onGround' then
                     if entity.direction == 'left' then
@@ -270,6 +269,7 @@ function Room:update(dt)
                     elseif entity.direction == 'down' then
                         entity.y = object.y - entity.height - entity.walkSpeed * dt
                     end
+                -- if object collides with with entity, entity loses health
                 elseif object.solid and object.state == 'onAir' then
                     object:onHit()
                     entity.health = entity.health - 1
@@ -277,6 +277,7 @@ function Room:update(dt)
             end
         end
 
+        -- remove unneeded objects
         if object.state == 'used' then
             table.remove(self.objects, k)
         end
@@ -299,6 +300,7 @@ function Room:render()
         doorway:render(self.adjacentOffsetX, self.adjacentOffsetY)
     end
 
+    -- make sure player and objects get rendered in the right order when the player carries an object
     for k, object in pairs(self.objects) do
         if self.player.direction == 'down' then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)
@@ -338,6 +340,7 @@ function Room:render()
         self.player:render()
     end
 
+    -- make sure player and objects get rendered in the right order when the player carries an object
     for k, object in pairs(self.objects) do
         if object.state == 'lifted' and self.player.direction ~= 'down' then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)
@@ -370,14 +373,4 @@ function Room:render()
     
     -- love.graphics.setColor(255, 255, 255, 255)
 
-    for k, object in pairs(self.objects) do
-        
-        love.graphics.setColor(0, 0, 0, 1)
-        -- love.graphics.setFont(gFonts['small'])
-        -- love.graphics.print('object.inPosition: ' .. tostring(object.inPosition), object.x, object.y - 30)
-        love.graphics.print('object.x: ' .. tostring(math.floor(object.x)), object.x, object.y - 20)
-        love.graphics.print('object.y: ' .. tostring(math.floor(object.y)), object.x, object.y - 10)
-        love.graphics.rectangle('line', object.x, object.y, object.width, object.height)
-        love.graphics.setColor(1, 1, 1, 1)
-    end
 end
